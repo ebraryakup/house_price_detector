@@ -1,3 +1,5 @@
+# All dependencies that we need
+
 from sklearn.datasets import fetch_california_housing
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -7,15 +9,17 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import root_mean_squared_error, r2_score
 from sklearn.ensemble import HistGradientBoostingRegressor
 
-# Load dataset directly into a Pandas DataFrame
+# 1. Load and explore
+# fetch_california_housing into a DataFrame. Run describe(), check for nulls, and plot a histogram of every column.
 data = fetch_california_housing(as_frame=True)
 df = data.frame
 
-# histograms
+# plot the histograms
 df.hist()
 plt.show()
 
-# create the geographic scatter plot
+# 2. Plot the target geographically
+# Scatter longitude against latitude coloured by price. The California coastline appears — location is the dominant signal and you can see it.
 plt.figure(figsize=(10,7))
 
 scatter = plt.scatter(
@@ -38,7 +42,8 @@ plt.grid(True)
 
 plt.show()
 
-#Split-out validation
+# 3. Fit a linear baseline
+# Train/test split, LinearRegression, report RMSE and R². This is the number to beat.
 array = df.values
 X = array[:,0:8]
 y = array[:,8]
@@ -50,15 +55,13 @@ X_train,X_test,y_train,y_test = train_test_split(
     random_state = 42
 )
 
-# train the model
+# Train The model
 model = LinearRegression()
 model.fit(X_train, y_train)
-# 4. Predict on test set
+# Predict On Test Set
 y_pred = model.predict(X_test)
 
-# 5. Evaluate metrics
-# Note: root_mean_squared_error is standard in modern scikit-learn
-
+# Evaluate Metrics
 r2 = r2_score(y_test, y_pred)
 rmse = root_mean_squared_error(y_test, y_pred)
 
@@ -66,7 +69,8 @@ print(f"--- Baseline Performance ---")
 print(f"R²:   {r2:.4f}")
 print(f"RMSE: {rmse:.4f}")
 
-# Feature Engineering
+# 4. Feature Engineering
+# Rooms per household, bedrooms per room, population per household. Raw totals are nearly useless; ratios are strong.
 
 df["rooms-per-household"] = df["AveRooms"]
 df["bedrooms-per-household"] = df["AveBedrms"] / df["AveRooms"]
@@ -104,7 +108,8 @@ print(f"R²:   {r2:.4f}")
 print(f"RMSE: {rmse:.4f}")
 
 
-# Implementing HistGradientBoostingRegressor 
+# 5.Fit gradient boosting
+# Same splits, HistGradientBoostingRegressor. Report RMSE and plot predicted against actual.
 
 df["bedrooms-per-household"] = df["AveBedrms"] / df["AveRooms"]
 
